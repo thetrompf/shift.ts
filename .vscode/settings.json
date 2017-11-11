@@ -1,0 +1,31 @@
+{
+    "[javascript]": {
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": true
+    },
+    "[javascriptreact]": {
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": true
+    },
+    "[jest-snapshot]": {
+        "files.insertFinalNewline": false,
+        "files.trimTrailingWhitespace": false
+    },
+    "[json]": {
+        "editor.quickSuggestions": {
+            "strings": true
+        },
+        "editor.formatOnSave": true
+    },
+    "[typescript]": {
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": true
+    },
+    "[typescriptreact]": {
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": true
+    },
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+}
