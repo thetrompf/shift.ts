@@ -81,7 +81,7 @@ class ValueProvider<T = any> extends EventEmitter {
 export class ShiftContextProvider extends React.Component<Props, State> {
     public static readonly childContextTypes = FormContextTypes;
 
-    private liveValidationSubscription: SubscriptionCanceller;
+    private liveValidationSubscription: SubscriptionCanceller | null;
 
     private validationErrors: Map<string, ValidationError[]>;
 
@@ -171,6 +171,7 @@ export class ShiftContextProvider extends React.Component<Props, State> {
     public cancelLiveValidation() {
         if (this.liveValidationSubscription != null) {
             this.liveValidationSubscription();
+            this.liveValidationSubscription = null;
         }
     }
 
