@@ -1,6 +1,6 @@
 import * as React from 'react';
 const Children = React.Children;
-import { TabRegistryContext, TabRegistryContextTypes } from './Context';
+import { TabRegistryContext, TabRegistryContextTypes } from './ContextProvider';
 
 export class ShiftSubmit extends React.Component {
     public static readonly contextTypes = TabRegistryContextTypes;

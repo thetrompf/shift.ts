@@ -1,24 +1,63 @@
 import * as React from 'react';
 import { validate } from 'validate.ts';
-import { requiredValidator } from 'validate.ts';
-import { ShiftContext } from './Context';
+import { Constraints } from 'validate.ts';
+import { ShiftContextProvider as ContextProvider } from './ContextProvider';
 
-interface Props {
+interface FormField {
+    editor: string;
+    editorProps: {};
+}
+
+export interface FormSchema {
+    [key: string]: FormField;
+}
+
+export interface Props {
     onSubmit: (value: {}) => void;
+    schema?: FormSchema & Constraints<any>;
     tabBoundaryKey?: string;
 }
 
 interface State {}
 
 export class ShiftForm extends React.Component<Props, State> {
-    private refContext: ShiftContext | null;
-    private bindContextRef = (ref: ShiftContext) => {
+    private cancelLiveValidationSubscription: any = null;
+    private refContext: ContextProvider | null;
+
+    public componentWillUnmount() {
+        if (this.cancelLiveValidationSubscription != null) {
+            this.cancelLiveValidationSubscription();
+        }
+        this.refContext = null;
+    }
+    private bindContextRef = (ref: ContextProvider) => {
         this.refContext = ref;
     };
 
     private internalValidate(values: any): Promise<void> {
-        return validate(values, { username: { validators: [requiredValidator] } });
+        if (this.props.schema != null) {
+            return validate(values, this.props.schema);
+        }
+        return Promise.resolve();
     }
+
+    private onReset = (e: React.FormEvent<HTMLFormElement>) => {
+        if (this.refContext == null) {
+            return;
+        }
+
+        e.stopPropagation();
+        e.preventDefault();
+
+        this.refContext.cancelLiveValidation();
+        this.refContext.clearValidationErrors();
+
+        if (this.refContext.tabRegistry != null) {
+            this.refContext.tabRegistry.focusFirst();
+        }
+
+        this.refContext.clearValues();
+    };
 
     private onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -28,12 +67,16 @@ export class ShiftForm extends React.Component<Props, State> {
         }
         const values = this.refContext.getValues();
         try {
-            await this.internalValidate(values);
             this.refContext.clearValidationErrors();
+            await this.internalValidate(values);
         } catch (e) {
             this.refContext.setValidationErrors(e);
+            if (this.props.schema != null && this.cancelLiveValidationSubscription == null) {
+                this.refContext.liveValidate(this.props.schema);
+            }
             return;
         }
+        this.refContext.cancelLiveValidation();
         this.props.onSubmit(values);
     };
 
@@ -47,10 +90,10 @@ export class ShiftForm extends React.Component<Props, State> {
 
     public render() {
         return (
-            <form onSubmit={this.onSubmit}>
-                <ShiftContext ref={this.bindContextRef} tabBoundaryKey={this.props.tabBoundaryKey} tabCycle>
+            <form onReset={this.onReset} onSubmit={this.onSubmit}>
+                <ContextProvider ref={this.bindContextRef} tabBoundaryKey={this.props.tabBoundaryKey} tabCycle>
                     {this.props.children}
-                </ShiftContext>
+                </ContextProvider>
             </form>
         );
     }

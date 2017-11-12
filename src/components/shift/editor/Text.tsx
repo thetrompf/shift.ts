@@ -1,14 +1,20 @@
 import * as React from 'react';
+import { FormContext, FormContextTypes } from '../ContextProvider';
+import { FieldContext, FieldContextTypes } from '../Field';
 import { ShiftInputEditor as Input } from './Input';
 
 interface Props {
-    name: string;
     onChange?: (value: string | null) => void;
     value?: string;
 }
 
 export class ShiftTextEditor extends React.Component<Props> {
+    public static readonly contextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
+    public static readonly isShiftEditor = true;
+    public context: FieldContext & FormContext;
     public render() {
-        return <Input name={this.props.name} onChange={this.props.onChange} type="text" value={this.props.value} />;
+        return (
+            <Input name={this.context.editorKey} onChange={this.props.onChange} type="text" value={this.props.value} />
+        );
     }
 }

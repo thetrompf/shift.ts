@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { ValidationError } from 'validate.ts';
-import { Context as ShiftContext, ContextTypes as ShiftContextTypes } from '../Context';
+import { FormContext, FormContextTypes } from '../ContextProvider';
+import { FieldContext, FieldContextTypes } from '../Field';
 
 interface Props {
     name: string;
@@ -11,22 +11,21 @@ interface Props {
 }
 
 interface State {
-    validationErrors: ValidationError[];
     value: string | null;
 }
 
-const ContextTypes = Object.assign({}, ShiftContextTypes);
+const ContextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
 
 export class ShiftInputEditor extends React.Component<Props, State> {
     public static contextTypes = ContextTypes;
+    public static readonly isShiftEditor = true;
 
     private refInput: HTMLInputElement | null;
-    public context: ShiftContext;
+    public readonly context: FieldContext & FormContext;
 
-    public constructor(props: Props, context: ShiftContext) {
+    public constructor(props: Props, context: FieldContext & FormContext) {
         super(props, context);
         this.state = {
-            validationErrors: [],
             value: props.value || null,
         };
     }
@@ -35,7 +34,7 @@ export class ShiftInputEditor extends React.Component<Props, State> {
         this.context.shift.addEditor(this.props.name, {
             focus: this.focus,
             getValue: this.getValue,
-            setValidationErrors: this.setValidationErrors,
+            setValue: this.setValue,
         });
     }
 
@@ -70,21 +69,19 @@ export class ShiftInputEditor extends React.Component<Props, State> {
         if (this.props.onChange) {
             this.props.onChange(this.state.value);
         }
+        this.context.shift.triggerChange(this.context.editorKey);
     };
 
-    private setValidationErrors = (errors: ValidationError[]) => {
-        this.setState({
-            validationErrors: errors,
-        });
+    private setValue = (value: string | null): void => {
+        this.setState({ value: value });
     };
 
     public render() {
-        const style =
-            this.state.validationErrors.length === 0
-                ? undefined
-                : {
-                      border: '1px solid red',
-                  };
+        const style = this.context.hasErrors
+            ? {
+                  border: '1px solid red',
+              }
+            : undefined;
         return (
             <input
                 key={this.props.name}
