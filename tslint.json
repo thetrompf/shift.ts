@@ -1,10 +1,16 @@
 {
-    "extends": ["tslint-secoya"],
+    "extends": [
+        "tslint-secoya"
+    ],
     "rules": {
-        "indent": [true, "spaces"],
+        "indent": [
+            true,
+            "spaces"
+        ],
         "jsx-boolean-value": false,
         "no-relative-imports": false,
         "no-var-requires": false,
-        "semicolon": false
+        "semicolon": false,
+        "space-before-function-paren": false
     }
 }
