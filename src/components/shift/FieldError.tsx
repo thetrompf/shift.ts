@@ -6,7 +6,7 @@ const style = {
     color: 'red',
 };
 
-export class ShiftFieldError extends React.Component {
+export class FieldError extends React.Component {
     public static readonly contextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
     public static readonly displayName = 'Shift.FieldError';
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { FormContext, FormContextTypes } from './ContextProvider';
 import { FieldContext, FieldContextTypes } from './Field';
 
-export interface Props { }
+export interface Props {}
 
 const style = {
     cursor: 'pointer',
@@ -13,7 +13,7 @@ const errorStyle = {
     cursor: 'pointer',
 };
 
-export class ShiftLabel extends React.Component<Props> {
+export class Label extends React.Component<Props> {
     public static readonly contextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
     public static displayName = 'Shift.Label';
 

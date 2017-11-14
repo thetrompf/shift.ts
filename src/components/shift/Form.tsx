@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { validate } from 'validate.ts';
 import { Constraints } from 'validate.ts';
-import { ShiftContextProvider as ContextProvider } from './ContextProvider';
+import { ContextProvider } from './ContextProvider';
 
-interface FormField {
+interface FieldSchema {
     editor: string;
     editorProps: {};
 }
 
 export interface FormSchema {
-    [key: string]: FormField;
+    [key: string]: FieldSchema;
 }
 
 export interface Props {
@@ -18,11 +18,13 @@ export interface Props {
     tabBoundaryKey?: string;
 }
 
-interface State { }
+interface State {}
 
-export class ShiftForm extends React.Component<Props, State> {
+export class Form extends React.Component<Props, State> {
     public static readonly displayName = 'Shift.Form';
     private refContext: ContextProvider | null;
+
+    private refForm: HTMLFormElement | null = null;
 
     public componentWillUnmount() {
         if (this.refContext != null) {
@@ -32,6 +34,9 @@ export class ShiftForm extends React.Component<Props, State> {
     }
     private bindContextRef = (ref: ContextProvider) => {
         this.refContext = ref;
+    };
+    private bindFormRef = (ref: HTMLFormElement) => {
+        this.refForm = ref;
     };
 
     private internalValidate(values: any): Promise<void> {
@@ -80,6 +85,26 @@ export class ShiftForm extends React.Component<Props, State> {
         this.props.onSubmit(values);
     };
 
+    private resetForm = () => {
+        if (this.refForm != null) {
+            this.refForm.dispatchEvent(
+                new Event('reset', {
+                    bubbles: true,
+                }),
+            );
+        }
+    };
+
+    private submitForm = () => {
+        if (this.refForm != null) {
+            this.refForm.dispatchEvent(
+                new Event('submit', {
+                    bubbles: true,
+                }),
+            );
+        }
+    };
+
     public validate() {
         if (this.refContext == null) {
             return;
@@ -90,8 +115,14 @@ export class ShiftForm extends React.Component<Props, State> {
 
     public render() {
         return (
-            <form onReset={this.onReset} onSubmit={this.onSubmit}>
-                <ContextProvider ref={this.bindContextRef} tabBoundaryKey={this.props.tabBoundaryKey} tabCycle>
+            <form onReset={this.onReset} onSubmit={this.onSubmit} ref={this.bindFormRef}>
+                <ContextProvider
+                    ref={this.bindContextRef}
+                    resetForm={this.resetForm}
+                    submitForm={this.submitForm}
+                    tabBoundaryKey={this.props.tabBoundaryKey}
+                    tabCycle
+                >
                     {this.props.children}
                 </ContextProvider>
             </form>

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { FormContext, FormContextTypes } from '../ContextProvider';
-import Editor, { IEditor, ShiftTabbable as Tabbable } from '../Editor';
+import { EditorDecorator, IEditor } from '../Editor';
 import { FieldContext, FieldContextTypes } from '../Field';
+import { TabbableHOC } from '../Tabbable';
 
 export interface Props {
     onValueChange?: (value: string | null) => void;
@@ -14,7 +15,7 @@ export interface State {
     value: string;
 }
 
-export class ShiftInputComponent extends React.PureComponent<Props, State> implements IEditor {
+export class InputComponent extends React.PureComponent<Props, State> implements IEditor {
     public static readonly contextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
     public static readonly displayName = 'Shift.InputComponent';
 
@@ -35,7 +36,7 @@ export class ShiftInputComponent extends React.PureComponent<Props, State> imple
     private onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         this.setState({ value });
-    }
+    };
 
     public componentDidUpdate(prevState: State) {
         if (prevState.value !== this.state.value) {
@@ -67,12 +68,7 @@ export class ShiftInputComponent extends React.PureComponent<Props, State> imple
 
     public render() {
         return (
-            <input
-                onChange={this.onChange}
-                ref={this.bindInputRef}
-                type={this.props.type}
-                value={this.state.value}
-            />
+            <input onChange={this.onChange} ref={this.bindInputRef} type={this.props.type} value={this.state.value} />
         );
     }
 
@@ -81,4 +77,4 @@ export class ShiftInputComponent extends React.PureComponent<Props, State> imple
     };
 }
 
-export const ShiftInputEditor = Tabbable(Editor(ShiftInputComponent));
+export const InputEditor = TabbableHOC(EditorDecorator(InputComponent));

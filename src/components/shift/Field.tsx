@@ -23,7 +23,7 @@ interface State {
     validationErrors: ValidationError[];
 }
 
-export class ShiftField extends React.Component<Props, State> {
+export class Field extends React.Component<Props, State> {
     public static readonly childContextTypes = FieldContextTypes;
     public static readonly contextTypes = FormContextTypes;
     public static readonly displayName = 'Shift.Field';

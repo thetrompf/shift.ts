@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { FormContext, FormContextTypes, TabRegistryContext, TabRegistryContextTypes } from './ContextProvider';
+import { FormContext, FormContextTypes } from './ContextProvider';
 import { FieldContext, FieldContextTypes } from './Field';
 import { getDisplayName } from './util';
 
 export interface EditorConstructor {
-    new(...args: any[]): CustomEditor;
+    new (...args: any[]): CustomEditor;
 }
 
 export interface IEditor {
@@ -24,16 +24,18 @@ abstract class CustomEditor extends React.Component<{}> implements IEditor {
 
 export interface RendererProps {
     onValueChange?: (value: any) => void;
-    render: (opts: {
-        focusNext: () => void;
-        focusPrev: () => void;
-        onValueChange: (value: any) => void;
-        registerEditor: FormContext['shift']['registerEditor'];
-        unregisterEditor: FormContext['shift']['unregisterEditor'];
-    }) => JSX.Element;
+    render: (
+        opts: {
+            focusNext: () => void;
+            focusPrev: () => void;
+            onValueChange: (value: any) => void;
+            registerEditor: FormContext['shift']['registerEditor'];
+            unregisterEditor: FormContext['shift']['unregisterEditor'];
+        },
+    ) => JSX.Element;
 }
 
-export class ShiftEditorRenderer extends React.Component<RendererProps> {
+export class EditorRenderer extends React.Component<RendererProps> {
     public static readonly contextTypes = Object.assign({}, FormContextTypes, FieldContextTypes);
     public static readonly displayName = 'Shift.EditorRenderer';
 
@@ -43,7 +45,7 @@ export class ShiftEditorRenderer extends React.Component<RendererProps> {
         if (this.context.tabRegistry) {
             this.context.tabRegistry.focusNext(this.context.editorKey);
         }
-    }
+    };
 
     private focusPrev = () => {
         if (this.context.tabRegistry) {
@@ -56,7 +58,7 @@ export class ShiftEditorRenderer extends React.Component<RendererProps> {
             this.props.onValueChange(value);
         }
         this.context.shift.triggerChange(this.context.editorKey);
-    }
+    };
 
     public render() {
         return this.props.render({
@@ -67,20 +69,19 @@ export class ShiftEditorRenderer extends React.Component<RendererProps> {
             unregisterEditor: this.context.shift.unregisterEditor,
         });
     }
-
 }
 
-export interface EditorProps {
+export interface EditorHOCProps {
     onValueChange: (value: any) => void;
     registerEditor: FormContext['shift']['registerEditor'];
     unregisterEditor: FormContext['shift']['unregisterEditor'];
 }
 
-export function ShiftEditor<CProps>(
+export function EditorHOC<CProps>(
     Comp: React.ReactType<CProps>,
     WrapperElement: string = 'div',
-): React.ComponentClass<CProps & EditorProps> {
-    return class extends React.Component<CProps & EditorProps> {
+): React.ComponentClass<CProps & EditorHOCProps> {
+    return class extends React.Component<CProps & EditorHOCProps> {
         public static readonly contextTypes = Object.assign({}, FormContextTypes, FieldContextTypes);
         public static readonly displayName = `Shift.Editor(${getDisplayName(Comp)})`;
         public context: FormContext & FieldContext;
@@ -90,7 +91,7 @@ export function ShiftEditor<CProps>(
                 this.props.onValueChange(value);
             }
             this.context.shift.triggerChange(this.context.editorKey);
-        }
+        };
 
         public render() {
             const props = this.props;
@@ -103,57 +104,11 @@ export function ShiftEditor<CProps>(
                 />
             );
         }
-    }
-}
-
-const TabbableContextTypes = Object.assign({}, FieldContextTypes, TabRegistryContextTypes);
-
-export function ShiftTabbable<CProps>(
-    Comp: React.ReactType<CProps>,
-    WrapperElement: string = 'span',
-): React.ComponentClass<CProps> {
-    return class extends React.Component<CProps> {
-        public static readonly contextTypes = TabbableContextTypes
-        public static readonly displayName = `Shift.Tabbable(${getDisplayName(Comp)})`;
-        public context: FieldContext & TabRegistryContext;
-
-        private focusNext = () => {
-            if (this.context.tabRegistry != null) {
-                this.context.tabRegistry.focusNext(this.context.editorKey);
-            }
-        }
-
-        private focusPrev = () => {
-            if (this.context.tabRegistry != null) {
-                this.context.tabRegistry.focusPrev(this.context.editorKey);
-            }
-        }
-
-        private onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
-            if (e.key === 'Tab') {
-                e.stopPropagation();
-                e.preventDefault();
-                if (e.shiftKey) {
-                    this.focusPrev();
-                } else {
-                    this.focusNext();
-                }
-            }
-        }
-
-        public render() {
-            const props = this.props;
-            return (
-                <WrapperElement onKeyDown={this.onKeyDown}>
-                    <Comp {...props} />
-                </WrapperElement>
-            );
-        }
-    }
+    };
 }
 
 function componentDidMountDecorator(oldImpl: any) {
-    return function (this: CustomEditor, ...args: any[]) {
+    return function(this: CustomEditor, ...args: any[]) {
         if (oldImpl != null) {
             oldImpl.apply(this, args);
         }
@@ -166,20 +121,20 @@ function componentDidMountDecorator(oldImpl: any) {
 }
 
 function componentWillUnmountDecorator(oldImpl: any) {
-    return function (this: CustomEditor, ...args: any[]) {
+    return function(this: CustomEditor, ...args: any[]) {
         this.context.shift.unregisterEditor(this.context.editorKey);
         if (oldImpl != null) {
             oldImpl.apply(this, args);
         }
-    }
+    };
 }
 
 function contextTypesDecorator(oldImpl: any) {
-    return Object.assign({}, (oldImpl || {}), FieldContextTypes, FormContextTypes);
+    return Object.assign({}, oldImpl || {}, FieldContextTypes, FormContextTypes);
 }
 
 function onValueChangeDecorator(oldImpl: any) {
-    return function (this: CustomEditor, value: any): void {
+    return function(this: CustomEditor, value: any): void {
         if (oldImpl != null) {
             oldImpl.apply(this, arguments);
         }
@@ -189,50 +144,26 @@ function onValueChangeDecorator(oldImpl: any) {
 
 function decorate(target: any, propertyKey: string, decorator: (oldImpl: any) => any) {
     const descriptor = Object.getOwnPropertyDescriptor(target, propertyKey);
-    Object.defineProperty(
-        target,
-        propertyKey,
-        {
-            value: decorator(descriptor == null ? undefined : descriptor.value),
-        },
-    );
+    Object.defineProperty(target, propertyKey, {
+        value: decorator(descriptor == null ? undefined : descriptor.value),
+    });
 }
 
-export default function ShifEditor<TEditor extends EditorConstructor>(
+export function EditorDecorator<TEditor extends EditorConstructor>(
     // tslint:disable-next-line:no-duplicate-parameter-names no-reserved-keywords
     constructor: TEditor,
 ): TEditor {
-    decorate(
-        constructor.prototype,
-        'componentDidMount',
-        componentDidMountDecorator,
-    );
+    decorate(constructor.prototype, 'componentDidMount', componentDidMountDecorator);
 
-    decorate(
-        constructor.prototype,
-        'componentWillUnmount',
-        componentWillUnmountDecorator,
-    );
+    decorate(constructor.prototype, 'componentWillUnmount', componentWillUnmountDecorator);
 
-    decorate(
-        constructor.prototype,
-        'onValueChange',
-        onValueChangeDecorator,
-    );
+    decorate(constructor.prototype, 'onValueChange', onValueChangeDecorator);
 
-    decorate(
-        constructor,
-        'contextTypes',
-        contextTypesDecorator,
-    );
+    decorate(constructor, 'contextTypes', contextTypesDecorator);
 
-    Object.defineProperty(
-        constructor,
-        'displayName',
-        {
-            value: `Shift.Editor(${getDisplayName(constructor)})`,
-        },
-    );
+    Object.defineProperty(constructor, 'displayName', {
+        value: `Shift.Editor(${getDisplayName(constructor)})`,
+    });
 
     return constructor as any;
 }

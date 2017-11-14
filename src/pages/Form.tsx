@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { requiredValidator, ValidationError } from 'validate.ts';
-import { ShiftPasswordEditor as Password } from '../components/shift/editor/Password';
-import { ShiftTextEditor as Text } from '../components/shift/editor/Text';
+import { PasswordEditor as Password } from '../components/shift/editor/Password';
+import { TextEditor as Text } from '../components/shift/editor/Text';
 // import { ShiftTextEditor as Text } from '../components/shift/editor/Text';
-import { ShiftField as Field } from '../components/shift/Field';
-import { ShiftFieldError as FieldError } from '../components/shift/FieldError';
-import { Props as FormProps, ShiftForm as Form } from '../components/shift/Form';
-import { ShiftLabel as Label } from '../components/shift/Label';
-import { ShiftReset as Reset } from '../components/shift/Reset';
-import { ShiftSubmit as Submit } from '../components/shift/Submit';
+import { Field } from '../components/shift/Field';
+import { FieldError } from '../components/shift/FieldError';
+import { Form, Props as FormProps } from '../components/shift/Form';
+import { Label } from '../components/shift/Label';
+import { ResetRenderer } from '../components/shift/Reset';
+import { SubmitRenderer } from '../components/shift/Submit';
 
 const schema: FormProps['schema'] = {
     password: {
@@ -54,8 +54,45 @@ const schema: FormProps['schema'] = {
 };
 
 export class FormPage extends React.Component {
+    private refResetInput: HTMLInputElement | null = null;
+    private refSubmitInput: HTMLInputElement | null = null;
+
+    private bindResetInputRef = (ref: HTMLInputElement) => {
+        this.refResetInput = ref;
+    };
+
+    private bindSubmitInputRef = (ref: HTMLInputElement) => {
+        this.refSubmitInput = ref;
+    };
+
+    private focusReset = () => {
+        if (this.refResetInput == null) {
+            return false;
+        }
+        this.refResetInput.focus();
+        return true;
+    };
+
+    private focusSubmit = () => {
+        if (this.refSubmitInput == null) {
+            return false;
+        }
+        this.refSubmitInput.focus();
+        return true;
+    };
+
     private onSubmit = (values: {}) => {
         window.alert(JSON.stringify(values));
+    };
+
+    private renderReset: ResetRenderer['props']['render'] = ({ onReset, registerFocusHandler }) => {
+        registerFocusHandler(this.focusReset);
+        return <input onClick={onReset} ref={this.bindResetInputRef} type="reset" />;
+    };
+
+    private renderSubmit: SubmitRenderer['props']['render'] = ({ onSubmit, registerFocusHandler }) => {
+        registerFocusHandler(this.focusSubmit);
+        return <input onClick={onSubmit} ref={this.bindSubmitInputRef} type="submit" />;
     };
 
     public render() {
@@ -91,8 +128,8 @@ export class FormPage extends React.Component {
                         </div>
                     </Field>
                     <div>
-                        <Reset />
-                        <Submit />
+                        <ResetRenderer render={this.renderReset} />
+                        <SubmitRenderer render={this.renderSubmit} />
                     </div>
                 </Form>
             </div>

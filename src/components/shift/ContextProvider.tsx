@@ -12,11 +12,13 @@ import {
 } from 'validate.ts';
 
 export interface Props {
+    resetForm: () => void;
+    submitForm: () => void;
     tabBoundaryKey?: string;
     tabCycle?: boolean;
 }
 
-interface State { }
+interface State {}
 
 export interface TabRegistryContext {
     tabRegistry?: TabRegistry;
@@ -28,6 +30,8 @@ export interface FormContext extends TabRegistryContext {
         clearValidationErrors: () => void;
         registerEditor: <T>(name: string, context: EditorContext<T>) => void;
         registerField: (name: string, context: FieldContext) => void;
+        resetForm: () => void;
+        submitForm: () => void;
         triggerChange: (name: string) => void;
         unregisterEditor: (name: string) => void;
         unregisterField: (name: string) => void;
@@ -54,6 +58,8 @@ export const FormContextTypes = Object.assign({}, TabRegistryContextTypes, {
         clearValidationErrors: PropTypes.func.isRequired,
         registerEditor: PropTypes.func.isRequired,
         registerField: PropTypes.func.isRequired,
+        resetForm: PropTypes.func.isRequired,
+        submitForm: PropTypes.func.isRequired,
         triggerChange: PropTypes.func.isRequired,
         unregisterEditor: PropTypes.func.isRequired,
         unregisterField: PropTypes.func.isRequired,
@@ -78,7 +84,7 @@ class ValueProvider<T = any> extends EventEmitter {
     }
 }
 
-export class ShiftContextProvider extends React.Component<Props, State> {
+export class ContextProvider extends React.Component<Props, State> {
     public static readonly childContextTypes = FormContextTypes;
     public static readonly displayName = 'Shift.ContextProvider';
 
@@ -131,12 +137,12 @@ export class ShiftContextProvider extends React.Component<Props, State> {
         });
     };
 
-    private registerEditor<T>(this: ShiftContextProvider, name: string, editorContext: EditorContext<T>) {
+    private registerEditor<T>(this: ContextProvider, name: string, editorContext: EditorContext<T>) {
         this.editors.set(name, new ValueProvider(editorContext));
         this.tabRegistry.add(name, editorContext.focus);
     }
 
-    private registerField(this: ShiftContextProvider, name: string, fieldContext: FieldContext) {
+    private registerField(this: ContextProvider, name: string, fieldContext: FieldContext) {
         this.fields.set(name, fieldContext);
     }
 
@@ -188,6 +194,8 @@ export class ShiftContextProvider extends React.Component<Props, State> {
                 clearValidationErrors: this.clearValidationErrors.bind(this),
                 registerEditor: this.registerEditor.bind(this),
                 registerField: this.registerField.bind(this),
+                resetForm: this.resetForm.bind(this),
+                submitForm: this.submitForm.bind(this),
                 triggerChange: this.triggerChange.bind(this),
                 unregisterEditor: this.unregisterEditor.bind(this),
                 unregisterField: this.unregisterField.bind(this),
@@ -219,6 +227,10 @@ export class ShiftContextProvider extends React.Component<Props, State> {
         );
     }
 
+    public resetForm = () => {
+        this.props.resetForm();
+    };
+
     public setValidationErrors(err: ValidationAggregateError<any>) {
         err.errors.forEach((errors, editorKey) => {
             const fieldContext = this.fields.get(editorKey);
@@ -228,6 +240,10 @@ export class ShiftContextProvider extends React.Component<Props, State> {
             }
         });
     }
+
+    public submitForm = () => {
+        this.props.submitForm();
+    };
 
     public render() {
         return this.props.children;
