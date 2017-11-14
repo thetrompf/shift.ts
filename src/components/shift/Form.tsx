@@ -3,9 +3,11 @@ import { validate } from 'validate.ts';
 import { Constraints } from 'validate.ts';
 import { ContextProvider } from './ContextProvider';
 
-interface FieldSchema {
-    editor: string;
+export interface FieldSchema {
+    editor: string | React.ReactType;
     editorProps: {};
+    helpText?: string;
+    label: string | React.ReactType;
 }
 
 export interface FormSchema {
@@ -127,6 +129,7 @@ export class Form extends React.Component<Props, State> {
                 <ContextProvider
                     ref={this.bindContextRef}
                     resetForm={this.resetForm}
+                    schema={this.props.schema}
                     submitForm={this.submitForm}
                     tabBoundaryKey={this.props.tabBoundaryKey}
                     tabCycle

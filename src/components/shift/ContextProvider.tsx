@@ -10,9 +10,11 @@ import {
     ValidationAggregateError,
     ValidationError,
 } from 'validate.ts';
+import { FormSchema } from './Form';
 
 export interface Props {
     resetForm: () => void;
+    schema?: FormSchema;
     submitForm: () => void;
     tabBoundaryKey?: string;
     tabCycle?: boolean;
@@ -31,6 +33,7 @@ export interface FormContext extends TabRegistryContext {
         registerEditor: <T>(name: string, context: EditorContext<T>) => void;
         registerField: (name: string, context: FieldContext) => void;
         resetForm: () => void;
+        schema?: FormSchema;
         submitForm: () => void;
         triggerChange: (name: string) => void;
         unregisterEditor: (name: string) => void;
@@ -59,6 +62,7 @@ export const FormContextTypes = Object.assign({}, TabRegistryContextTypes, {
         registerEditor: PropTypes.func.isRequired,
         registerField: PropTypes.func.isRequired,
         resetForm: PropTypes.func.isRequired,
+        schema: PropTypes.object,
         submitForm: PropTypes.func.isRequired,
         triggerChange: PropTypes.func.isRequired,
         unregisterEditor: PropTypes.func.isRequired,
@@ -195,6 +199,7 @@ export class ContextProvider extends React.Component<Props, State> {
                 registerEditor: this.registerEditor.bind(this),
                 registerField: this.registerField.bind(this),
                 resetForm: this.resetForm.bind(this),
+                schema: this.props.schema,
                 submitForm: this.submitForm.bind(this),
                 triggerChange: this.triggerChange.bind(this),
                 unregisterEditor: this.unregisterEditor.bind(this),

@@ -5,6 +5,7 @@ import './App.css';
 import { BootstrapPage } from './pages/Bootstrap';
 import { FormPage } from './pages/Form';
 import { HomePage } from './pages/Home';
+import { SchemaPage } from './pages/Schema';
 
 const logo = require('./logo.svg');
 
@@ -18,11 +19,14 @@ class App extends React.Component {
                         <h2>Welcome to React</h2>
                     </div>
                     <div className="App-menu">
-                        <Link to="/">Home</Link> <Link to="/form">Form</Link> <Link to="/bootstrap">Bootstrap</Link>
+                        {/* tslint:disable-next-line:max-line-length */}
+                        <Link to="/">Home</Link> <Link to="/form">Form</Link> <Link to="/bootstrap">Bootstrap</Link>{' '}
+                        <Link to="/schema">Schema</Link>
                     </div>
                     <Route component={HomePage} exact path="/" />
                     <Route component={FormPage} path="/form" />
                     <Route component={BootstrapPage} path="/bootstrap" />
+                    <Route component={SchemaPage} path="/schema" />
                 </div>
             </Router>
         );

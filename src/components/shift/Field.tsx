@@ -2,21 +2,25 @@ import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { ValidationError } from 'validate.ts';
 import { FormContext, FormContextTypes } from './ContextProvider';
+import { FieldSchema } from './Form';
 
 export const FieldContextTypes = {
     editorKey: PropTypes.string.isRequired,
     hasErrors: PropTypes.bool.isRequired,
+    schema: PropTypes.object,
     validationErrors: PropTypes.arrayOf(PropTypes.instanceOf(ValidationError).isRequired).isRequired,
 };
 
 export interface FieldContext {
     editorKey: string;
     hasErrors: boolean;
+    schema?: FieldSchema;
     validationErrors: ValidationError[];
 }
 
 export interface Props {
     editorKey: string;
+    schema?: FieldSchema;
 }
 
 interface State {
@@ -55,6 +59,7 @@ export class Field extends React.Component<Props, State> {
         return {
             editorKey: this.props.editorKey,
             hasErrors: this.state.validationErrors.length > 0,
+            schema: this.props.schema,
             validationErrors: this.state.validationErrors,
         };
     }
