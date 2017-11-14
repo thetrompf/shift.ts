@@ -17,8 +17,7 @@ class App extends React.Component {
                         <h2>Welcome to React</h2>
                     </div>
                     <div className="App-menu">
-                        <Link to="/">Home</Link>
-                        <Link to="/form">Form</Link>
+                        <Link to="/">Home</Link> <Link to="/form">Form</Link>
                     </div>
                     <Route component={HomePage} exact path="/" />
                     <Route component={FormPage} path="/form" />
