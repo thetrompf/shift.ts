@@ -8,8 +8,10 @@
             "spaces"
         ],
         "jsx-boolean-value": false,
+        "jsx-no-multiline-js": false,
         "no-relative-imports": false,
         "no-var-requires": false,
+        "react-tsx-curly-spacing": false,
         "semicolon": false,
         "space-before-function-paren": false
     }
