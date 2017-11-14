@@ -1,8 +1,11 @@
 import * as React from 'react';
-const Children = React.Children;
 import { FormContext, FormContextTypes, TabRegistryContext, TabRegistryContextTypes } from './ContextProvider';
 
-export class Submit extends React.Component {
+export interface Props {
+    className?: string;
+}
+
+export class Submit extends React.Component<Props> {
     public static readonly contextTypes = TabRegistryContextTypes;
     public static readonly displayName = 'Shift.Submit';
 
@@ -48,11 +51,9 @@ export class Submit extends React.Component {
     };
 
     public render() {
-        if (Children.count(this.props.children) === 0) {
-            return <input onKeyDown={this.onKeyDown} ref={this.bindInputRef} type="submit" />;
-        } else {
-            return this.props.children;
-        }
+        return (
+            <input className={this.props.className} onKeyDown={this.onKeyDown} ref={this.bindInputRef} type="submit" />
+        );
     }
 }
 

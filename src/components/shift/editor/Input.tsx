@@ -5,7 +5,9 @@ import { FieldContext, FieldContextTypes } from '../Field';
 import { TabbableHOC } from '../Tabbable';
 
 export interface Props {
+    className?: string;
     onValueChange?: (value: string | null) => void;
+    placeholder?: string;
     // tslint:disable-next-line:no-reserved-keywords
     type?: string;
     value?: string | null;
@@ -68,7 +70,14 @@ export class InputComponent extends React.PureComponent<Props, State> implements
 
     public render() {
         return (
-            <input onChange={this.onChange} ref={this.bindInputRef} type={this.props.type} value={this.state.value} />
+            <input
+                className={this.props.className}
+                onChange={this.onChange}
+                placeholder={this.props.placeholder}
+                ref={this.bindInputRef}
+                type={this.props.type}
+                value={this.state.value}
+            />
         );
     }
 

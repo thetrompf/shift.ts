@@ -2,16 +2,9 @@ import * as React from 'react';
 import { FormContext, FormContextTypes } from './ContextProvider';
 import { FieldContext, FieldContextTypes } from './Field';
 
-export interface Props {}
-
-const style = {
-    cursor: 'pointer',
-};
-
-const errorStyle = {
-    color: 'red',
-    cursor: 'pointer',
-};
+export interface Props {
+    className?: string;
+}
 
 export class Label extends React.Component<Props> {
     public static readonly contextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
@@ -28,9 +21,8 @@ export class Label extends React.Component<Props> {
     };
 
     public render() {
-        const labelStyle = this.context.hasErrors ? errorStyle : style;
         return (
-            <label htmlFor={this.context.editorKey} onClick={this.onClick} style={labelStyle}>
+            <label className={this.props.className} htmlFor={this.context.editorKey} onClick={this.onClick}>
                 {this.props.children}
             </label>
         );

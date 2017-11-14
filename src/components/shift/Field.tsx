@@ -15,7 +15,7 @@ export interface FieldContext {
     validationErrors: ValidationError[];
 }
 
-interface Props {
+export interface Props {
     editorKey: string;
 }
 

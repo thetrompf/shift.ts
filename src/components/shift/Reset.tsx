@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { FormContext, FormContextTypes } from './ContextProvider';
 
-export class Reset extends React.Component {
+export interface Props {
+    className?: string;
+}
+
+export class Reset extends React.Component<Props> {
     public static readonly contextTypes = FormContextTypes;
     public static readonly displayName = 'Shift.Reset';
 
@@ -47,7 +51,9 @@ export class Reset extends React.Component {
     };
 
     public render() {
-        return <input onKeyDown={this.onKeyDown} ref={this.bindInputRef} type="reset" />;
+        return (
+            <input className={this.props.className} onKeyDown={this.onKeyDown} ref={this.bindInputRef} type="reset" />
+        );
     }
 }
 

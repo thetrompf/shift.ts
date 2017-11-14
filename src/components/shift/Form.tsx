@@ -13,8 +13,10 @@ export interface FormSchema {
 }
 
 export interface Props {
+    className?: string;
     onSubmit: (value: {}) => void;
     schema?: FormSchema & Constraints<any>;
+    style?: React.CSSProperties;
     tabBoundaryKey?: string;
 }
 
@@ -115,7 +117,13 @@ export class Form extends React.Component<Props, State> {
 
     public render() {
         return (
-            <form onReset={this.onReset} onSubmit={this.onSubmit} ref={this.bindFormRef}>
+            <form
+                className={this.props.className}
+                onReset={this.onReset}
+                onSubmit={this.onSubmit}
+                ref={this.bindFormRef}
+                style={this.props.style}
+            >
                 <ContextProvider
                     ref={this.bindContextRef}
                     resetForm={this.resetForm}

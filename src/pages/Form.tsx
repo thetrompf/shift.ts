@@ -1,3 +1,4 @@
+import { css } from 'glamor';
 import * as React from 'react';
 import { requiredValidator, ValidationError } from 'validate.ts';
 import { PasswordEditor as Password } from '../components/shift/editor/Password';
@@ -6,9 +7,10 @@ import { TextEditor as Text } from '../components/shift/editor/Text';
 import { Field } from '../components/shift/Field';
 import { FieldError } from '../components/shift/FieldError';
 import { Form, Props as FormProps } from '../components/shift/Form';
+import { HelpText } from '../components/shift/HelpText';
 import { Label } from '../components/shift/Label';
-import { ResetRenderer } from '../components/shift/Reset';
-import { SubmitRenderer } from '../components/shift/Submit';
+import { Reset } from '../components/shift/Reset';
+import { Submit } from '../components/shift/Submit';
 
 const schema: FormProps['schema'] = {
     password: {
@@ -22,7 +24,11 @@ const schema: FormProps['schema'] = {
                 }
                 if (typeof value === 'string') {
                     if (value.length < 6) {
-                        throw new ValidationError('Must be at least 6 chars');
+                        if (6 - value.length === 1) {
+                            throw new ValidationError(`Must be at least one more character`);
+                        } else {
+                            throw new ValidationError(`Must be at least ${6 - value.length} more characters`);
+                        }
                     }
                 } else {
                     throw new ValidationError('Must be string');
@@ -53,58 +59,26 @@ const schema: FormProps['schema'] = {
     },
 };
 
+const containerStyle = css({ textAlign: 'initial', padding: 15 });
+
 export class FormPage extends React.Component {
-    private refResetInput: HTMLInputElement | null = null;
-    private refSubmitInput: HTMLInputElement | null = null;
-
-    private bindResetInputRef = (ref: HTMLInputElement) => {
-        this.refResetInput = ref;
-    };
-
-    private bindSubmitInputRef = (ref: HTMLInputElement) => {
-        this.refSubmitInput = ref;
-    };
-
-    private focusReset = () => {
-        if (this.refResetInput == null) {
-            return false;
-        }
-        this.refResetInput.focus();
-        return true;
-    };
-
-    private focusSubmit = () => {
-        if (this.refSubmitInput == null) {
-            return false;
-        }
-        this.refSubmitInput.focus();
-        return true;
-    };
-
     private onSubmit = (values: {}) => {
         window.alert(JSON.stringify(values));
     };
 
-    private renderReset: ResetRenderer['props']['render'] = ({ onReset, registerFocusHandler }) => {
-        registerFocusHandler(this.focusReset);
-        return <input onClick={onReset} ref={this.bindResetInputRef} type="reset" />;
-    };
-
-    private renderSubmit: SubmitRenderer['props']['render'] = ({ onSubmit, registerFocusHandler }) => {
-        registerFocusHandler(this.focusSubmit);
-        return <input onClick={onSubmit} ref={this.bindSubmitInputRef} type="submit" />;
-    };
-
     public render() {
         return (
-            <div>
+            <div className={containerStyle.toString()}>
                 <h1>Sign up</h1>
                 <Form onSubmit={this.onSubmit} schema={schema}>
                     <Field editorKey="username">
                         <div>
                             <Label>Username</Label>
                             <Text />
-                            <div style={{ height: 80 }}>
+                            <div>
+                                <HelpText text="We'll never share you email with anyone else." />
+                            </div>
+                            <div>
                                 <FieldError />
                             </div>
                         </div>
@@ -113,7 +87,10 @@ export class FormPage extends React.Component {
                         <div>
                             <Label>Password</Label>
                             <Password />
-                            <div style={{ height: 80 }}>
+                            <div>
+                                <HelpText />
+                            </div>
+                            <div>
                                 <FieldError />
                             </div>
                         </div>
@@ -122,14 +99,16 @@ export class FormPage extends React.Component {
                         <div>
                             <Label>Repeat password</Label>
                             <Password />
-                            <div style={{ height: 80 }}>
+                            <div>
+                                <HelpText />
+                            </div>
+                            <div>
                                 <FieldError />
                             </div>
                         </div>
                     </Field>
                     <div>
-                        <ResetRenderer render={this.renderReset} />
-                        <SubmitRenderer render={this.renderSubmit} />
+                        <Reset /> <Submit />
                     </div>
                 </Form>
             </div>
