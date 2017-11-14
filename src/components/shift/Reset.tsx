@@ -24,6 +24,20 @@ export class ShiftReset extends React.Component {
         this.refInput = ref;
     };
 
+    private onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Tab') {
+            if (this.context.tabRegistry != null) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.shiftKey) {
+                    this.context.tabRegistry.focusPrev('__ShiftReset');
+                } else {
+                    this.context.tabRegistry.focusNext('__ShiftReset');
+                }
+            }
+        }
+    }
+
     public focus = (): boolean => {
         if (this.refInput == null) {
             return false;
@@ -33,6 +47,6 @@ export class ShiftReset extends React.Component {
     };
 
     public render() {
-        return <input name="__ShiftReset" ref={this.bindInputRef} type="reset" />;
+        return <input onKeyDown={this.onKeyDown} ref={this.bindInputRef} type="reset" />;
     }
 }

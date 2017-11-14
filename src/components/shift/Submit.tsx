@@ -25,6 +25,20 @@ export class ShiftSubmit extends React.Component {
         this.refInput = ref;
     };
 
+    private onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Tab') {
+            if (this.context.tabRegistry != null) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.shiftKey) {
+                    this.context.tabRegistry.focusPrev('__ShiftSubmit');
+                } else {
+                    this.context.tabRegistry.focusNext('__ShiftSubmit');
+                }
+            }
+        }
+    }
+
     public focus = (): boolean => {
         if (this.refInput == null) {
             return false;
@@ -35,7 +49,7 @@ export class ShiftSubmit extends React.Component {
 
     public render() {
         if (Children.count(this.props.children) === 0) {
-            return <input name="__ShiftSubmit" ref={this.bindInputRef} type="submit" />;
+            return <input onKeyDown={this.onKeyDown} ref={this.bindInputRef} type="submit" />;
         } else {
             return this.props.children;
         }
