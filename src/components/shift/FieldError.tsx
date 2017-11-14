@@ -8,6 +8,8 @@ const style = {
 
 export class ShiftFieldError extends React.Component {
     public static readonly contextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
+    public static readonly displayName = 'Shift.FieldError';
+
     public context: FieldContext & FormContext;
     public render() {
         if (this.context.validationErrors.length > 0) {

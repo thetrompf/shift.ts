@@ -4,6 +4,8 @@ import { TabRegistryContext, TabRegistryContextTypes } from './ContextProvider';
 
 export class ShiftSubmit extends React.Component {
     public static readonly contextTypes = TabRegistryContextTypes;
+    public static readonly displayName = 'Shift.Submit';
+
     private refInput: HTMLInputElement | null;
     public readonly context: TabRegistryContext;
 

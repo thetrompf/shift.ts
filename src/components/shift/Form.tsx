@@ -18,15 +18,15 @@ export interface Props {
     tabBoundaryKey?: string;
 }
 
-interface State {}
+interface State { }
 
 export class ShiftForm extends React.Component<Props, State> {
-    private cancelLiveValidationSubscription: any = null;
+    public static readonly displayName = 'Shift.Form';
     private refContext: ContextProvider | null;
 
     public componentWillUnmount() {
-        if (this.cancelLiveValidationSubscription != null) {
-            this.cancelLiveValidationSubscription();
+        if (this.refContext != null) {
+            this.refContext.cancelLiveValidation();
         }
         this.refContext = null;
     }
@@ -71,7 +71,7 @@ export class ShiftForm extends React.Component<Props, State> {
             await this.internalValidate(values);
         } catch (e) {
             this.refContext.setValidationErrors(e);
-            if (this.props.schema != null && this.cancelLiveValidationSubscription == null) {
+            if (this.props.schema != null) {
                 this.refContext.liveValidate(this.props.schema);
             }
             return;

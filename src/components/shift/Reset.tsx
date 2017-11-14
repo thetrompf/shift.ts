@@ -3,6 +3,8 @@ import { FormContext, FormContextTypes } from './ContextProvider';
 
 export class ShiftReset extends React.Component {
     public static readonly contextTypes = FormContextTypes;
+    public static readonly displayName = 'Shift.Reset';
+
     private refInput: HTMLInputElement | null;
     public readonly context: FormContext;
 

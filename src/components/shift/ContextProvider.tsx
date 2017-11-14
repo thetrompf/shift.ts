@@ -11,12 +11,12 @@ import {
     ValidationError,
 } from 'validate.ts';
 
-interface Props {
+export interface Props {
     tabBoundaryKey?: string;
     tabCycle?: boolean;
 }
 
-interface State {}
+interface State { }
 
 export interface TabRegistryContext {
     tabRegistry?: TabRegistry;
@@ -24,19 +24,19 @@ export interface TabRegistryContext {
 
 export interface FormContext extends TabRegistryContext {
     shift: {
-        addEditor: <T>(name: string, context: EditorContext<T>) => void;
-        addField: (name: string, context: FieldContext) => void;
         cancelLiveValidation: () => void;
         clearValidationErrors: () => void;
-        removeEditor: (name: string) => void;
-        removeField: (name: string) => void;
+        registerEditor: <T>(name: string, context: EditorContext<T>) => void;
+        registerField: (name: string, context: FieldContext) => void;
         triggerChange: (name: string) => void;
+        unregisterEditor: (name: string) => void;
+        unregisterField: (name: string) => void;
     };
 }
 
 export interface EditorContext<T = any> {
     focus: () => boolean;
-    getValue: () => T;
+    getValue: () => T | null;
     setValue: (value: T | null) => void;
 }
 
@@ -50,13 +50,13 @@ export const TabRegistryContextTypes = {
 
 export const FormContextTypes = Object.assign({}, TabRegistryContextTypes, {
     shift: PropTypes.shape({
-        addEditor: PropTypes.func.isRequired,
-        addField: PropTypes.func.isRequired,
         cancelLiveValidation: PropTypes.func.isRequired,
         clearValidationErrors: PropTypes.func.isRequired,
-        removeEditor: PropTypes.func.isRequired,
-        removeField: PropTypes.func.isRequired,
+        registerEditor: PropTypes.func.isRequired,
+        registerField: PropTypes.func.isRequired,
         triggerChange: PropTypes.func.isRequired,
+        unregisterEditor: PropTypes.func.isRequired,
+        unregisterField: PropTypes.func.isRequired,
     }),
 });
 
@@ -80,6 +80,7 @@ class ValueProvider<T = any> extends EventEmitter {
 
 export class ShiftContextProvider extends React.Component<Props, State> {
     public static readonly childContextTypes = FormContextTypes;
+    public static readonly displayName = 'Shift.ContextProvider';
 
     private liveValidationSubscription: SubscriptionCanceller | null;
 
@@ -111,15 +112,6 @@ export class ShiftContextProvider extends React.Component<Props, State> {
         }
     }
 
-    private addEditor<T>(this: ShiftContextProvider, name: string, editorContext: EditorContext<T>) {
-        this.editors.set(name, new ValueProvider(editorContext));
-        this.tabRegistry.add(name, editorContext.focus);
-    }
-
-    private addField(this: ShiftContextProvider, name: string, fieldContext: FieldContext) {
-        this.fields.set(name, fieldContext);
-    }
-
     private liveValidationChangeHandler = (err: ILiveValidationChangeMap<any, ValidationError>) => {
         err.forEach((errors, editorKey) => {
             const fieldContext = this.fields.get(editorKey);
@@ -139,26 +131,13 @@ export class ShiftContextProvider extends React.Component<Props, State> {
         });
     };
 
-    private onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        if (e.key === 'Tab' && e.target != null && (e.target as any).name != null) {
-            const name = (e.target as any).name as string;
-            e.preventDefault();
-            e.stopPropagation();
-            if (e.shiftKey) {
-                this.tabRegistry.focusPrev(name);
-            } else {
-                this.tabRegistry.focusNext(name);
-            }
-        }
-    };
-
-    private removeEditor(name: string) {
-        this.editors.delete(name);
-        this.tabRegistry.delete(name);
+    private registerEditor<T>(this: ShiftContextProvider, name: string, editorContext: EditorContext<T>) {
+        this.editors.set(name, new ValueProvider(editorContext));
+        this.tabRegistry.add(name, editorContext.focus);
     }
 
-    private removeField(name: string) {
-        this.fields.delete(name);
+    private registerField(this: ShiftContextProvider, name: string, fieldContext: FieldContext) {
+        this.fields.set(name, fieldContext);
     }
 
     private triggerChange(name: string) {
@@ -166,6 +145,15 @@ export class ShiftContextProvider extends React.Component<Props, State> {
         if (valueProvider != null) {
             valueProvider.emit('change');
         }
+    }
+
+    private unregisterEditor(name: string) {
+        this.editors.delete(name);
+        this.tabRegistry.delete(name);
+    }
+
+    private unregisterField(name: string) {
+        this.fields.delete(name);
     }
 
     public cancelLiveValidation() {
@@ -196,13 +184,13 @@ export class ShiftContextProvider extends React.Component<Props, State> {
     public getChildContext() {
         return {
             shift: {
-                addEditor: this.addEditor.bind(this),
-                addField: this.addField.bind(this),
                 cancelLiveValidation: this.cancelLiveValidation.bind(this),
                 clearValidationErrors: this.clearValidationErrors.bind(this),
-                removeEditor: this.removeEditor.bind(this),
-                removeField: this.removeField.bind(this),
+                registerEditor: this.registerEditor.bind(this),
+                registerField: this.registerField.bind(this),
                 triggerChange: this.triggerChange.bind(this),
+                unregisterEditor: this.unregisterEditor.bind(this),
+                unregisterField: this.unregisterField.bind(this),
             },
             tabRegistry: this.tabRegistry,
         };
@@ -242,6 +230,6 @@ export class ShiftContextProvider extends React.Component<Props, State> {
     }
 
     public render() {
-        return <div onKeyDown={this.onKeyDown}>{this.props.children}</div>;
+        return this.props.children;
     }
 }

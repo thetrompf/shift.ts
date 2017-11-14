@@ -26,6 +26,8 @@ interface State {
 export class ShiftField extends React.Component<Props, State> {
     public static readonly childContextTypes = FieldContextTypes;
     public static readonly contextTypes = FormContextTypes;
+    public static readonly displayName = 'Shift.Field';
+
     public readonly context: FormContext;
 
     public constructor(props: Props, context: FormContext) {
@@ -36,13 +38,13 @@ export class ShiftField extends React.Component<Props, State> {
     }
 
     public componentDidMount() {
-        this.context.shift.addField(this.props.editorKey, {
+        this.context.shift.registerField(this.props.editorKey, {
             setValidationErrors: this.setValidationErrors,
         });
     }
 
     public componentWillUnmount() {
-        this.context.shift.removeField(this.props.editorKey);
+        this.context.shift.unregisterField(this.props.editorKey);
     }
 
     private setValidationErrors = (errors: ValidationError[]) => {

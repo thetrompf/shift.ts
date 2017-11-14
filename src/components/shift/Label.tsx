@@ -2,7 +2,7 @@ import * as React from 'react';
 import { FormContext, FormContextTypes } from './ContextProvider';
 import { FieldContext, FieldContextTypes } from './Field';
 
-export interface Props {}
+export interface Props { }
 
 const style = {
     cursor: 'pointer',
@@ -15,7 +15,8 @@ const errorStyle = {
 
 export class ShiftLabel extends React.Component<Props> {
     public static readonly contextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
-    public static readonly isShiftLabel = true;
+    public static displayName = 'Shift.Label';
+
     public context: FieldContext & FormContext;
 
     private onClick = (e: React.MouseEvent<HTMLLabelElement>) => {

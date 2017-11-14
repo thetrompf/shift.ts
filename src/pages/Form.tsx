@@ -2,6 +2,7 @@ import * as React from 'react';
 import { requiredValidator, ValidationError } from 'validate.ts';
 import { ShiftPasswordEditor as Password } from '../components/shift/editor/Password';
 import { ShiftTextEditor as Text } from '../components/shift/editor/Text';
+// import { ShiftTextEditor as Text } from '../components/shift/editor/Text';
 import { ShiftField as Field } from '../components/shift/Field';
 import { ShiftFieldError as FieldError } from '../components/shift/FieldError';
 import { Props as FormProps, ShiftForm as Form } from '../components/shift/Form';

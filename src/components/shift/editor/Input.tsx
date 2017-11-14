@@ -1,97 +1,84 @@
 import * as React from 'react';
 import { FormContext, FormContextTypes } from '../ContextProvider';
+import Editor, { IEditor, ShiftTabbable as Tabbable } from '../Editor';
 import { FieldContext, FieldContextTypes } from '../Field';
 
-interface Props {
-    name: string;
-    onChange?: (value: string | null) => void;
+export interface Props {
+    onValueChange?: (value: string | null) => void;
     // tslint:disable-next-line:no-reserved-keywords
-    type?: 'text' | 'password';
-    value?: string;
+    type?: string;
+    value?: string | null;
 }
 
-interface State {
-    value: string | null;
+export interface State {
+    value: string;
 }
 
-const ContextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
-
-export class ShiftInputEditor extends React.Component<Props, State> {
-    public static contextTypes = ContextTypes;
-    public static readonly isShiftEditor = true;
+export class ShiftInputComponent extends React.PureComponent<Props, State> implements IEditor {
+    public static readonly contextTypes = Object.assign({}, FieldContextTypes, FormContextTypes);
+    public static readonly displayName = 'Shift.InputComponent';
 
     private refInput: HTMLInputElement | null;
-    public readonly context: FieldContext & FormContext;
+    public context: FormContext & FieldContext;
 
-    public constructor(props: Props, context: FieldContext & FormContext) {
+    public constructor(props: Props, context?: any) {
         super(props, context);
         this.state = {
-            value: props.value || null,
+            value: props.value || '',
         };
-    }
-
-    public componentDidMount() {
-        this.context.shift.addEditor(this.props.name, {
-            focus: this.focus,
-            getValue: this.getValue,
-            setValue: this.setValue,
-        });
-    }
-
-    public componentWillUnmount() {
-        this.context.shift.removeEditor(this.props.name);
     }
 
     private bindInputRef = (ref: HTMLInputElement) => {
         this.refInput = ref;
     };
 
-    private focus = () => {
-        if (this.refInput == null) {
-            return false;
-        }
-        this.refInput.focus();
-        return true;
-    };
-
-    private getValue = () => this.state.value;
-
     private onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.trim();
-        this.setState((prevState, props) => {
-            return {
-                value: value === '' ? null : value,
-            };
-        }, this.propagateChange);
-    };
+        const value = e.target.value;
+        this.setState({ value });
+    }
 
-    private propagateChange = () => {
-        if (this.props.onChange) {
-            this.props.onChange(this.state.value);
+    public componentDidUpdate(prevState: State) {
+        if (prevState.value !== this.state.value) {
+            this.onValueChange(this.getValue());
         }
-        this.context.shift.triggerChange(this.context.editorKey);
+    }
+
+    public focus = () => {
+        if (this.refInput != null) {
+            this.refInput.focus();
+            return true;
+        }
+        return false;
     };
 
-    private setValue = (value: string | null): void => {
-        this.setState({ value: value });
+    public getValue = () => {
+        const value = this.state.value.trim();
+        if (value === '') {
+            return null;
+        }
+        return value;
     };
+
+    public onValueChange(value: string | null) {
+        if (this.props.onValueChange != null) {
+            this.props.onValueChange(value);
+        }
+    }
 
     public render() {
-        const style = this.context.hasErrors
-            ? {
-                  border: '1px solid red',
-              }
-            : undefined;
         return (
             <input
-                key={this.props.name}
-                name={this.props.name}
                 onChange={this.onChange}
                 ref={this.bindInputRef}
-                style={style}
                 type={this.props.type}
-                value={this.state.value || ''}
+                value={this.state.value}
             />
         );
     }
+
+    public setValue = (value: string | null) => {
+        this.setState({ value: value || '' });
+    };
 }
+
+export const ShiftInputEditor = Tabbable(Editor(ShiftInputComponent));
