@@ -15,6 +15,7 @@ const schema: FormProps['schema'] = {
     password: {
         editor: 'Password',
         editorProps: {},
+        label: 'Password',
         validators: [
             requiredValidator,
             async (value: any) => {
@@ -39,6 +40,7 @@ const schema: FormProps['schema'] = {
         dependencies: ['password'],
         editor: 'Password',
         editorProps: {},
+        label: 'Repeat password',
         validators: [
             async (value: any, dependencies: Map<string, any>) => {
                 const passwordValue = dependencies.get('password');
@@ -54,6 +56,7 @@ const schema: FormProps['schema'] = {
     username: {
         editor: 'Text',
         editorProps: {},
+        label: 'Username',
         validators: [requiredValidator],
     },
 };

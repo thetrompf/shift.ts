@@ -6,6 +6,7 @@ import './index.css';
 import registerServiceWorker from './registerServiceWorker';
 
 const rootEl = document.getElementById('root');
+
 const render = (Root: React.ComponentClass): void => {
     ReactDOM.render(
         <AppContainer>
@@ -14,6 +15,16 @@ const render = (Root: React.ComponentClass): void => {
         rootEl,
     );
 };
+
+declare global {
+    interface NodeModule {
+        hot:
+            | {
+                  accept(path: string, callback: () => void): any;
+              }
+            | undefined;
+    }
+}
 
 render(App);
 
