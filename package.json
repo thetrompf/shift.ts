@@ -3,7 +3,7 @@
         "@secoya/tab-navigation.ts": "^2.1.1",
         "prop-types": "15.6.1",
         "react": "^16.3.2",
-        "react-dom": "^16.3.2",
+        "react-dom": "^16.3.3",
         "react-scripts-ts": "2.16.0",
         "validate.ts": "^2.1.1"
     },
